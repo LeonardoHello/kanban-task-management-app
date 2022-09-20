@@ -1,0 +1,107 @@
+@use './global' as *
+@use './colors' as *
+
+@mixin flex($direction, $align, $justify, $gap)
+	display: flex
+	flex-direction: $direction
+	align-items: $align
+	justify-content: $justify
+	gap: $gap
+
+#app
+	display: grid
+	background-color: var(--border-line)
+	grid-template-rows: 10rem auto
+	min-height: 100vh
+	gap: 1px
+
+header
+	@include flex(row, center, space-between, 1rem)
+	background-color: var(--header)
+	padding: 0 3rem
+
+	img
+		cursor: pointer
+
+	h1
+		color: var(--title)
+		font-weight: 700
+
+#header-left-side
+	@include flex(row, center, unset, 2rem)
+
+	> div
+		@include flex(row, center, unset, 1rem)
+		cursor: pointer
+
+		#arrow-down
+			margin-top: .6rem
+
+#header-right-side
+	@include flex(row, center, unset, 1rem)
+
+#plus
+	border-radius: 2rem
+	background-color: $purple
+	padding: .8em 1.6em
+	cursor: pointer
+
+	&:hover
+		filter: opacity(.5)
+
+#ellipsis
+	max-height: 3.8rem
+	padding: 1rem .8rem
+	border-radius: 2rem
+	transition: background-color .5s
+	cursor: pointer
+
+	&:hover
+		background-color: var(--ellipsis)
+
+main
+	@include flex(row, unset, unset, 3rem)
+	background-color: var(--bg)
+	padding: 2.5rem 3rem
+	overflow-x: scroll
+
+.todo-column
+	@include flex(column, unset, unset, 2.5rem)
+	min-width: 28rem
+
+	&:last-of-type .todo-collection-name
+		visibility: hidden
+
+	&:last-of-type .todo-collection
+		justify-content: center
+		font-size: 2.4rem
+		font-weight: 700
+		color: $columnName
+		border: unset
+		background: linear-gradient(to bottom,rgba(121,132,147,.2),rgba(130,143,163,.1),rgba(130,143,163,0))
+		cursor: pointer
+		transition: .5s color
+
+	&:last-of-type .todo-collection:hover
+		color: $purple
+
+.todo-collection-name
+	@include flex(row, center, unset, 1rem)
+
+	span
+		width: 1.5rem
+		height: 1.5rem
+		background: greenyellow
+		border-radius: 2rem
+
+	p
+		color: $columnName
+		font-size: 1.4rem
+		font-weight: 500
+		letter-spacing: 2px
+
+.todo-collection
+	@include flex(column, center, unset, 2rem)
+	flex-grow: 2
+	border-radius: .6rem
+	border: 2px dashed rgba(130,143,163,.4)
