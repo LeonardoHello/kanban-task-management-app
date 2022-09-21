@@ -15,7 +15,18 @@
 	min-height: 100vh
 	gap: 1px
 
-header
+#all-boards
+	position: absolute
+	@include flex(column, unset, unset, 3rem)
+	place-self: center
+	width: min(100%, 30rem)
+	background-color: var(--header)
+	padding: 2rem
+
+	p
+		color: $columnName
+
+.header
 	@include flex(row, center, space-between, 1rem)
 	background-color: var(--header)
 	padding: 0 3rem
@@ -27,18 +38,18 @@ header
 		color: var(--title)
 		font-weight: 700
 
-#header-left-side
-	@include flex(row, center, unset, 2rem)
+	&__left
+		@include flex(row, center, unset, 2rem)
 
-	> div
+	&__right
+		@include flex(row, center, unset, 1rem)
+
+	#current-board
 		@include flex(row, center, unset, 1rem)
 		cursor: pointer
 
 		#arrow-down
 			margin-top: .6rem
-
-#header-right-side
-	@include flex(row, center, unset, 1rem)
 
 #plus
 	border-radius: 2rem
@@ -50,8 +61,8 @@ header
 		filter: opacity(.5)
 
 #ellipsis
-	max-height: 3.8rem
-	padding: 1rem .8rem
+	max-height: 3.4rem
+	padding: .8rem
 	border-radius: 2rem
 	transition: background-color .5s
 	cursor: pointer
