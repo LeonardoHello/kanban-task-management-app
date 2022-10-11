@@ -8,111 +8,552 @@
 	justify-content: $justify
 	gap: $gap
 
+@keyframes modal
+	0%
+		opacity: 0
+		transform: translateY(-100%)
+
+@keyframes modalContainer
+	0%
+		opacity: 0
+
+@keyframes dropdown
+	0%
+		transform: translatex(110%)
+
+@keyframes task
+	0%
+		transform: translateY(100%)
+		opacity: 0
+
+@keyframes check
+	0%
+		height: 0
+
 #app
 	display: grid
 	background-color: var(--border-line)
-	grid-template-rows: 10rem auto
-	min-height: 100vh
-	gap: 1px
-
-#all-boards
-	position: absolute
-	@include flex(column, unset, unset, 3rem)
-	place-self: center
-	width: min(100%, 30rem)
-	background-color: var(--header)
-	padding: 2rem
-
-	p
-		color: $columnName
+	grid-template-rows: auto 1fr
+	height: 100vh
 
 .header
 	@include flex(row, center, space-between, 1rem)
 	background-color: var(--header)
-	padding: 0 3rem
+	padding: 1.4rem
 
-	img
+	&__left, &__right, &__board-menu-toggle
+		@include flex(row, center, unset, 1rem)
+
+	&__left
+		gap: 2rem
+
+	&__board-menu-toggle
 		cursor: pointer
-
-	h1
 		color: var(--title)
 		font-weight: 700
 
-	&__left
-		@include flex(row, center, unset, 2rem)
+	&__title
+		font-weight: 600
+		overflow-wrap: anywhere
+
+	&__arrow
+		margin-top: .5rem
+		transition: rotate .3s
+
+		&--active
+			rotate: -180deg
 
 	&__right
-		@include flex(row, center, unset, 1rem)
+		position: relative
 
-	#current-board
-		@include flex(row, center, unset, 1rem)
+	&__plus
+		border-radius: 100vmax
+		background-color: $purple
+		padding: .8em 1.6em
+		cursor: pointer
+		transition: opacity .3s
+
+		&:hover
+			opacity: .5
+
+	&__ellipsis
+		max-height: 3.4rem
+		padding: .8rem .6rem
+		border-radius: 2rem
+		transition: background-color .3s
 		cursor: pointer
 
-		#arrow-down
-			margin-top: .6rem
+		&:hover
+			background-color: var(--ellipsis)
 
-#plus
-	border-radius: 2rem
-	background-color: $purple
-	padding: .8em 1.6em
-	cursor: pointer
-
-	&:hover
-		filter: opacity(.5)
-
-#ellipsis
-	max-height: 3.4rem
-	padding: .8rem
-	border-radius: 2rem
-	transition: background-color .5s
-	cursor: pointer
-
-	&:hover
-		background-color: var(--ellipsis)
-
-main
-	@include flex(row, unset, unset, 3rem)
-	background-color: var(--bg)
-	padding: 2.5rem 3rem
+.board
+	@include flex(row, unset, unset, 2.5rem)
+	background-color: var(--board)
+	padding: 2.4rem 1.4rem
 	overflow-x: scroll
 
-.todo-column
-	@include flex(column, unset, unset, 2.5rem)
+	&::-webkit-scrollbar
+		max-height: .8rem
+
+	&::-webkit-scrollbar-track
+		opacity: 0
+
+	&::-webkit-scrollbar-thumb
+		background: #8484849a
+		border-radius: 100vmax
+
+.column
+	@include flex(column, unset, unset, 2.2rem)
 	min-width: 28rem
+	max-width: 28rem
 
-	&:last-of-type .todo-collection-name
-		visibility: hidden
+	&__header
+		@include flex(row, center, unset, 1rem)
 
-	&:last-of-type .todo-collection
-		justify-content: center
-		font-size: 2.4rem
-		font-weight: 700
-		color: $columnName
-		border: unset
-		background: linear-gradient(to bottom,rgba(121,132,147,.2),rgba(130,143,163,.1),rgba(130,143,163,0))
-		cursor: pointer
-		transition: .5s color
+		&--last
+			visibility: hidden
 
-	&:last-of-type .todo-collection:hover
-		color: $purple
-
-.todo-collection-name
-	@include flex(row, center, unset, 1rem)
-
-	span
+	&__color
 		width: 1.5rem
 		height: 1.5rem
-		background: greenyellow
 		border-radius: 2rem
 
-	p
-		color: $columnName
-		font-size: 1.4rem
-		font-weight: 500
-		letter-spacing: 2px
+		@each $order, $color in $colorOrder
+			&--#{$order}
+				background-color: $color
 
-.todo-collection
-	@include flex(column, center, unset, 2rem)
-	flex-grow: 2
+	&__name
+		color: $gray
+		font-size: 1.2rem
+		font-weight: 700
+		letter-spacing: 2.4px
+		white-space: nowrap
+
+	&__body
+		@include flex(column, center, unset, 1.8rem)
+		flex-grow: 2
+		max-height: 100%
+		border-radius: .6rem
+		overflow-y: scroll
+
+		&::-webkit-scrollbar
+			max-width: .5rem
+
+		&::-webkit-scrollbar-track
+			opacity: 0
+
+		&::-webkit-scrollbar-thumb
+			background: #8484849a
+			border-radius: 100vmax
+
+		&--last
+			justify-content: center
+			min-width: unset
+			max-width: unset
+			width: min(100%, 28rem)
+			font-size: 2.4rem
+			font-weight: 700
+			color: $gray
+			border: unset
+			background: linear-gradient(to bottom,rgba(121,132,147,.2),rgba(130,143,163,.1),rgba(130,143,163,0))
+			cursor: pointer
+			transition: .5s color
+
+			&:hover
+				color: $purple
+
+		&--empty
+			border: 2px dashed rgba(130,143,163,.4)
+
+.task
+	@include flex(column, flex-start, unset, 1rem)
+	min-width: 100%
+	padding: 2.2rem 1.6rem
+	background-color: var(--header)
+	border: 1px solid rgba(130,143,163,.1)
+	border-radius: .8rem
+	box-shadow: 0 4px 6px var(--ellipsis)
+	animation: task 1s
+	cursor: pointer
+	transition: opacity .3s
+
+	&:hover
+		opacity: .6
+
+	&__name
+		overflow-wrap: anywhere
+		font-size: 1.5rem
+		color: var(--title)
+		line-height: 1.25
+
+	&__count
+		font-size: 1.2rem
+		font-weight: 700
+		color: $gray
+
+.subtask
+	@include flex(row, center, flex-start, 1.5rem)
+	padding: 1.2rem
+	border-radius: .8rem
+	background-color: var(--theme-switch-box)
+	cursor: pointer
+
+	&:hover
+		background-color: rgba(99,95,199,.25)
+
+	&__check-box
+		display: grid
+		place-items: center
+		aspect-ratio: 1/1
+		min-height: 1.6rem
+		background-color: var(--header)
+		border-radius: .2rem
+		border: 1px solid rgba(130,143,163,.4)
+		transition: background-color .3s
+
+		&--completed
+			background-color: $purple
+
+	&__check
+		height: 1rem
+		rotate: -10deg
+		margin: .1rem 0 0 .1rem
+		animation: check .3s
+
+	&__name
+		font-size: 1.2rem
+		line-height: 1.5rem
+		transition: color .3s
+		font-weight: 700
+
+		&--completed
+			color: var(--checked)
+			text-decoration: line-through
+
+#modal-container
+	display: grid
+	place-items: center
+	position: absolute
+	min-width: 100vw
+	min-height: 100vh
+	background-color: rgba(0, 0, 0, .4)
+	z-index: 2
+	animation: modalContainer .5s
+
+.modal
+	@include flex(column, unset, unset, 2.5rem)
+	padding: 3rem 3rem 4rem
+	background-color: var(--header)
+	color: var(--title)
+	max-height: calc( 100vh - 2.8rem )
+	width: min(100vw - 2.8rem, 40rem)
+	border-radius: 1rem
+	box-shadow: 0 1rem 1rem rgba(0, 0, 0, .1)
+	animation: modal .5s
+	overflow-y: scroll
+	overflow-x: hidden
+
+	&::-webkit-scrollbar
+		max-width: .5rem
+
+	&::-webkit-scrollbar-track
+		opacity: 0
+
+	&::-webkit-scrollbar-thumb
+		background: #8484849a
+		border-radius: 100vmax
+
+	&__header
+		@include flex(row, center, space-between, 3rem)
+
+		&__buttons
+			@include flex(row, center, center, 1.5rem)
+			position: relative
+
+	&__cross
+		cursor: pointer
+		transition: opacity .5s
+
+		&--unclickable
+			opacity: .5
+			pointer-events: none
+
+		&:hover
+			opacity: .8
+
+	&__ellipsis
+		max-height: 3.2rem
+		padding: .8rem .6rem
+		border-radius: 2rem
+		transition: background-color .3s
+		cursor: pointer
+
+		&:hover
+			background-color: var(--ellipsis)
+
+	&__description
+		color: $gray
+		line-height: 1.5
+		font-size: 1.3rem
+
+	&__fill-out
+		@include flex(column, unset, unset, 1rem)
+
+	&__title
+		overflow-wrap: anywhere
+		font-size: 1.8rem
+		line-height: 1.5
+		color: inherit
+
+	&__label
+		color: var(--sub-title)
+		font-size: 1.2rem
+		font-weight: 600
+
+	&__input-container
+		@include flex(row, center, unset, unset)
+		flex-grow: 2
+		position: relative
+
+		&--readonly
+			opacity: .5
+			pointer-events: none
+
+		&__dropdown
+			position: absolute
+
+	&__input, &__textarea
+		color: inherit
+		font-size: 1.3rem
+		border: 2px solid
+		border-color: rgba(130, 143, 163, .4)
+		border-radius: .4rem
+		padding: .8em 5em .8em 1.2em
+		transition: border-color .5s
+		flex-grow: 2
+
+		&::-webkit-scrollbar
+			max-width: .5rem
+
+		&::-webkit-scrollbar-track
+			opacity: 0
+
+		&::-webkit-scrollbar-thumb
+			background: #8484849a
+			border-radius: 100vmax
+
+		&--select
+			cursor: pointer
+
+		&:focus
+			border-color: $purple
+
+		&--incorrect
+			border-color: #ea5555
+
+		&--readonly
+			opacity: .5
+			pointer-events: none
+
+		&__error
+			position: absolute
+			color: #ea5555
+			font-weight: 700
+			font-size: 1.2rem
+			right: 1rem
+			bottom: .8rem
+			opacity: 0
+			transition: opacity .3s
+			pointer-events: none
+
+			&--visible
+				opacity: 1
+
+	&__textarea
+		min-height: 10rem
+		resize: none
+		padding: .8em 1.2em
+		line-height: 1.5
+
+	&__removable-input
+		@include flex(row, center, unset, 1.5rem)
+
+	&__button
+		border-radius: 3rem
+		padding: .8em 0
+		min-width: 100%
+		font-weight: 700
+		font-size: 1.3rem
+		transition: opacity .3s
+
+		&:hover
+			opacity: .5
+
+		&--white
+			background-color: var(--add-button)
+			color: $purple
+
+		&--purple
+			background-color: $purple
+			color: white
+
+	&__arrow
+		position: absolute
+		font-size: 1.3rem
+		right: 1.2em
+		transition: rotate .3s
+
+		&--active
+			rotate: 180deg
+
+.board-menu
+	@include flex(column, flex-start, unset, 2rem)
+	padding: 2rem 3rem
+	width: min(100% - 2.8rem, 30rem)
+	background-color: var(--header)
+	border-radius: .8rem
+	box-shadow: 0 1rem 1rem rgba(0, 0, 0, .1)
+	animation: modal .5s
+
+	&__title
+		color: $gray
+		font-size: 1.2rem
+		letter-spacing: .24rem
+
+	&__collection
+		@include flex(column, unset, center, unset)
+
+.board-item
+	@include flex(row, center, unset, 1.5rem)
+	align-self: flex-end
+	padding: 1.5rem 3rem
+	min-width: calc(100% + 3rem)
+	border-radius: 0 3rem 3rem 0
+	color: $gray
+	fill: $gray
+	cursor: pointer
+	transition: fill .2s, color .2s, background-color .2s, opacity .2s
+
+	&:not(&--active):hover
+		opacity: .6
+
+	&--active
+		color: white
+		background-color: $purple
+
+	&--purple
+		color: $purple
+
+	&__name
+		color: inherit
+		font-size: 1.6rem
+		font-weight: 600
+
+.theme
+	@include flex(row, center, space-evenly, unset)
+	align-self: center
+	padding: 1.4rem 0
+	width: calc( 100% - 4rem )
+	background-color: var(--theme-switch-box)
 	border-radius: .6rem
-	border: 2px dashed rgba(130,143,163,.4)
+
+	&__toggle
+		display: grid
+		align-items: center
+		justify-content: flex-start
+		min-height: 2rem
+		min-width: 4rem
+		padding: 0.35rem
+		background-color: $purple
+		border-radius: 100vmax
+		cursor: pointer
+
+		&--light
+			justify-content: flex-end
+
+		&__dot
+			aspect-ratio: 1/1
+			background-color: white
+			min-height: 100%
+			border-radius: 100vmax
+
+.dropdown
+	@include flex(column, unset, center, 2rem)
+	position: absolute
+	background-color: var(--dropdown)
+	padding: 2rem 6rem 2rem 2rem
+	top: calc(100% + 1rem)
+	right: 0
+	border-radius: .8rem
+	box-shadow: 0 0 8px #364e7e1a
+	animation: dropdown .5s
+	z-index: 3
+
+	&--select
+		font-size: 1.3rem
+		padding: 1.2em
+		min-width: 100%
+		animation: modalContainer .5s
+
+	&__item
+		color: $gray
+		white-space: nowrap
+		cursor: pointer
+		transition: opacity .3s
+
+		&:hover
+			opacity: .5
+
+		&--edit
+			color: $gray
+			font-size: 1.6rem
+
+		&--delete
+			color: #ea5555
+			font-size: 1.6rem
+
+@media screen and (min-width: 50rem)
+	#app
+		grid-template-columns: auto 1fr
+		gap: .1rem
+
+	.header
+		color: var(--title)
+		padding: 2.5rem 3rem
+
+		&__logo
+			font-size: 2.5rem
+			font-weight: 700
+
+		&__right
+			gap: 2rem
+
+		&__plus
+			color: white
+			font-size: 1.6rem
+			font-weight: 700
+
+			padding: 1em 1.5em
+
+	.board
+		padding: 2.5rem 3rem
+
+	.board-menu
+		animation: unset
+		border-radius: unset
+		grid-row-start: 1
+		grid-row-end: 3
+		width: unset
+		padding: 3rem
+		gap: 3rem
+
+		&__logo
+			min-height: 3rem
+			margin-bottom: 3rem
+
+	.board-item
+		min-width: calc(100% + 3rem)
+
+	.theme
+		min-width: 100%
+		margin-top: auto

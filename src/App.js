@@ -1,66 +1,86 @@
 import { useState, useEffect } from 'react';
-import { observer } from "mobx-react-lite";
-import boards from "./store";
-import TodoColumn from './components/TodoColumn';
-import AddNew from './components/AddNew';
-import logo from './assets/logo-mobile.svg';
-import arrowDown from './assets/icon-chevron-down.svg';
-import plus from './assets/icon-add-task-mobile.svg';
-import ellipsis from './assets/icon-vertical-ellipsis.svg';
-import { db, onSnapshot, collection, doc, getDoc, setDoc } from "./firebase";
+import { observer } from 'mobx-react-lite';
+import mode, { current, dropdown, modal } from './store';
+import AddBoard from './components/modals/AddBoard';
+import EditBoard from './components/modals/EditBoard';
+import AddColumn from './components/modals/AddColumn';
+import AddTask from './components/modals/AddTask';
+import EditTask from './components/modals/EditTask';
+import ViewTask from './components/modals/ViewTask';
+import BoardMenu from './components/modals/BoardMenu';
+import Board from './components/Board';
+import Header from './components/Header';
+import { db, onSnapshot, doc, getDoc, query, orderBy, collection } from "./firebase";
 
 const App = () => {
+	const [boards, setBoards] = useState();
 	const [rootWidth, setRootWidth] = useState();
-	const [darkMode, setDarkMode] = useState(true);
-	const [currentBoard, setCurrentBoard] = useState();
 
 	useEffect(() => {
 		const observer = new ResizeObserver(entries => setRootWidth(entries[0].contentRect.width));
-		observer.observe(document.getElementById('root'));
+		observer.observe(document.getElementById('app'));
 		return () => observer.disconnect();
 	}, [rootWidth]);
 
-	useEffect(() => {
-		const unsub = onSnapshot(collection(db, "boards"), querySnapshot => {
-			boards.setCollection(querySnapshot.docs.map(elem => ({
-				id: elem.id,
-				data: elem.data()
-			})))
-		});
-		return () => unsub()
-	}, [darkMode]);
-
-	const add = async name => {
-		if (boards.collection.some(elem => elem.id === name)) return
-		await setDoc(doc(db, "boards", name), {});
+	const inputError = () => {
+		[...document.getElementsByClassName('incorrect')].map(elem => elem.classList.add('modal__input--incorrect'));
+		[...document.getElementsByClassName('modal__input__error')].map(elem => elem.classList.add('modal__input__error--visible'));
 	}
 
+	useEffect(() => {
+		const unsub = onSnapshot(query(collection(db, "boards"), orderBy('date', 'asc')), async querySnapshot => {
+			setBoards(querySnapshot)
+
+			const currentId = current.boardId && await getDoc(doc(db, "boards", current.boardId))
+
+			if ((!current.boardId && !querySnapshot.empty) || (!currentId?.exists() && !querySnapshot.empty)) return current.setBoardId(querySnapshot.docs[0].id)
+
+			if (querySnapshot.empty) return current.setBoardId('')
+		});
+
+		return () => unsub()
+	}, []);
+
 	return (
-		<div id='app' className={darkMode ? 'dark' : 'light'}>
-			<AddNew />
-			<div className='header'>
-				<div className='header__left'>
-					<img src={logo} alt="logo" onClick={() => setDarkMode(prev => !prev)} />
-					<div id='current-board'>
-						<h1 onClick={e => add(e.currentTarget.innerText)}>Roadmap</h1>
-						<img id="arrow-down" src={arrowDown} alt="arrow down" />
-					</div>
-				</div>
-				<div className='header__right'>
-					<img id='plus' src={plus} alt="add" />
-					<img id='ellipsis' src={ellipsis} alt="add" />
-				</div>
-			</div>
-			<main>
-				<TodoColumn />
-				<div className='todo-column'>
-					<div className='todo-collection-name'>
-						<span />
-						<p>TODO(1)</p>
-					</div>
-					<div className='todo-collection'>+ New Column</div>
-				</div>
-			</main>
+		<div
+			id='app'
+			className={mode.dark ? 'dark' : 'light'}
+			onClick={() => dropdown.close()}
+		>
+			{modal.createBoard && <AddBoard inputError={inputError} />}
+			{modal.editBoard && <EditBoard inputError={inputError} />}
+			{modal.createColumn && <AddColumn inputError={inputError} />}
+			{modal.createTask && <AddTask inputError={inputError} />}
+			{modal.editTask && <EditTask inputError={inputError} />}
+			{modal.viewTask && <ViewTask />}
+
+			{rootWidth < 800 ? (
+				<>
+					{modal.boardSelect && (
+						<div id="modal-container" onClick={() => modal.close()}>
+							<BoardMenu boards={boards} />
+						</div>
+					)}
+					<Header
+						text={"+ New Column"}
+						rootWidth={rootWidth}
+					/>
+					{current.boardId && <Board />}
+				</>
+			) : (
+				<>
+					<BoardMenu
+						boards={boards}
+						rootWidth={rootWidth}
+					/>
+					<Header
+						text={"+ New Column"}
+						rootWidth={rootWidth}
+					/>
+					{current.boardId && <Board />}
+				</>
+			)}
+
 		</div>
 	);
 }
